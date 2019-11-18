@@ -1,6 +1,6 @@
 import pygame
 import os
-
+from operator import itemgetter
 # 初始化 PyGame
 
 pygame.init()
@@ -15,7 +15,7 @@ pygame.mixer.init()
 WIDTH = 912
 LENGTH = 912
 screen = pygame.display.set_mode((WIDTH, LENGTH))
-pygame.display.set_caption("Hey I'm created by Andy")
+pygame.display.set_caption("Five In Row")
 
 # 定时刷新屏幕
 
@@ -27,16 +27,17 @@ clock = pygame.time.Clock()
 base_folder = os.path.dirname(__file__)
 img_folder = os.path.join(base_folder, 'images')
 background_img = pygame.image.load(os.path.join(img_folder, 'back.jpg')).convert()
-
+grid_side = WIDTH / 16
 
 # 画出 15*15 棋盘
+
 
 def draw_background(surface):
     # 导入照片
     surface.blit(background_img, (0, 0))
-    grid_side = WIDTH / 16
 
     # 设置四个顶点位置
+
     upper_left = (grid_side, grid_side)
     upper_right = (WIDTH - grid_side, grid_side)
     down_left = (grid_side, WIDTH - grid_side)
@@ -83,9 +84,24 @@ def draw_background(surface):
 all_chess = []
 
 
-def draw_chess(monitor, position, color):
-    all_chess.append((position, color))
-    pygame.draw.circle(monitor, color, position, 5)
+def if_win(position, color):
+    chess_vertical = []
+    # determine if  Vertical side has win
+    for i in all_chess:
+        print(i[1])
+
+        if i[0][0] == position[0] * grid_side and i[1] == color:
+            chess_vertical.append(i)
+            sorted(chess_vertical, key=itemgetter(0))
+            print(chess_vertical)
+
+            for p in chess_vertical:
+                reserve = 0
+                if p[1] == reserve:
+                    win = True
+                reserve = p[1]
+
+
 
 
 def draw_movements(monitor):
@@ -93,11 +109,17 @@ def draw_movements(monitor):
         # m[0] 存的是位置，m[1]存的是颜色
         pygame.draw.circle(monitor, m[1], m[0], 16)
 
+
+def draw_chess(monitor, position, color):
+    all_chess.append(((int(position[0] * grid_side), int(position[1] * grid_side)), color))
+    pygame.draw.circle(monitor, color, position, 5)
+
+
 # 主循环
 
-
 event_click = 0
-while True:
+running = True
+while running:
     clock.tick(FPS)
 
     # 处理事件
@@ -114,21 +136,23 @@ while True:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             event_click += 1
             pos = event.pos
-            grid = (int(round(event.pos[0])),
-                    int(round(event.pos[1])))
+            grid = (int(round(event.pos[0] / (grid_side + .0))),
+                    int(round(event.pos[1] / (grid_side + .0))))
 
             # 定义白子
             if event_click % 2 == 0:
-                print(pos)
                 draw_chess(screen, grid, (255, 255, 255))
+                if_win(grid, (255, 255, 255))
 
             # 定义黑子
             else:
                 draw_chess(screen, grid, (0, 0, 0))
+                if_win(grid, (0, 0, 0))
 
     # 画出棋盘
     draw_background(screen)
     draw_movements(screen)
+
     # 刷新屏幕
     pygame.display.flip()
 
