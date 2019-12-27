@@ -1,15 +1,10 @@
-# _author__ = "Zhuoheng Li)"
+# _author__ = "Zhuoheng Li"
 # __copyright__ = "Copyright (C) 2019 Zhuoheng Li"
 # __license__ = "GPL-3.0"
 # __version__ = "1.0"
-# Crafted With Passion
-
 
 import pygame
 import os
-from operator import itemgetter
-import random
-
 # 初始化 PyGame
 
 pygame.init()
@@ -41,7 +36,7 @@ grid_side = WIDTH / 16
 # 画出 15*15 棋盘
 
 
-def draw_background(surface) :
+def draw_background(surface):
     # 导入照片
     surface.blit(background_img, (0, 0))
 
@@ -95,86 +90,115 @@ all_chess = []
 
 def if_win(position, color):
     chess_vertical = []
-    count = 0
     chess_horizontal = []
     chess_i_slope_obligate = []
     chess_d_slope_obligate = []
+    saying = ""
+    winning = False
 
     # determine if  Vertical side has win
-    for i in all_chess :
+    for i in all_chess:
+
         # Vertical
-        if i[0][0] == position[0] * grid_side and i[1] == color:
+        if i[0][0] == position[0] * grid_side:
             chess_vertical.append(i)
             chess_vertical.sort()
-            print(chess_vertical)
+            # print(chess_vertical, "chess_horizontal")
 
         # horizontal
         if i[0][1] == position[1] * grid_side and i[1] == color:
+
             chess_horizontal.append(i)
             chess_horizontal.sort()
-            print(chess_horizontal)
 
-        if (i[0][0] >= (position[0] * grid_side) and i[0][1] <= (position[1] * grid_side) and i[1] == color) \
-                or (i[0][0] <= (position[0] * grid_side) and i[0][1] >= (position[1] * grid_side) and i[1] == color):
-            chess_i_slope_obligate.append(i)
-            chess_i_slope_obligate.sort()
-            print(chess_i_slope_obligate)
+        for num in range(0, 15):
+            if (i[0][0] + grid_side * num == (position[0] * grid_side)
+                    and i[0][1] + grid_side * num == (position[1] * grid_side) and i[1] == color) \
+                    or (i[0][0] + grid_side * num == (position[0] * grid_side)
+                        and i[0][1] - grid_side * num == (position[1] * grid_side)) and (i[1] == color):
+                chess_i_slope_obligate.append(i)
+                chess_i_slope_obligate.sort()
+                print(chess_i_slope_obligate)
 
-        if (i[0][0] >= (position[0] * grid_side) and i[0][1] >= (position[1] * grid_side) and i[1] == color) \
-                or (i[0][0] <= (position[0] * grid_side) and i[0][1] <= (position[1] * grid_side) and i[1] == color):
-            chess_d_slope_obligate.append(i)
-            chess_d_slope_obligate.sort()
-            print(chess_d_slope_obligate)
+            if (i[0][0] - grid_side * num == (position[0] * grid_side)
+                and i[0][1] - grid_side * num == (position[1] * grid_side)
+                    and i[1] == color) or (i[0][0] + grid_side * num == (position[0] * grid_side)
+                                           and i[0][1] + 57 * num == (position[1] * grid_side)) and (i[1] == color):
+                chess_d_slope_obligate.append(i)
+                chess_d_slope_obligate.sort()
+                print(chess_d_slope_obligate, "chess_d_slope_obligate")
 
-    for p in chess_vertical :
+    counter_vertical = 0
 
-        for q in range(1, len(chess_vertical)) :
+    for p in chess_vertical:
 
-            if p[0][1] + 57 == chess_vertical[q][0][1] :
-                count += 1
+        for q in range(1, len(chess_vertical)):
+
+            if p[0][1] + grid_side == chess_vertical[q][0][1]:
+                counter_vertical += 1
+        if counter_vertical == 4:
+            winning = True
+            saying = "Vertical"
 
             # TODO Why set count = 0 would always produce count = 0?
-            # else:
-            #     count = 0
 
-    for p in chess_horizontal :
+    counter_horizontal = 0
 
-        for q in range(1, len(chess_horizontal)) :
+    for p in chess_horizontal:
+        for q in range(1, len(chess_horizontal)):
 
-            if p[0][0] + 57 == chess_horizontal[q][0][0] :
-                count += 1
+            if p[0][0] + grid_side == chess_horizontal[q][0][0]:
+                counter_horizontal += 1
 
-    # for p in chess_i_lope_obligate:
+        if counter_horizontal == 4:
+            winning = True
+            saying = "Horizontal"
+
+    counter_d_slope = 0
 
     for p in chess_d_slope_obligate:
 
         for q in range(1, len(chess_d_slope_obligate)):
 
-            if p[0][0] + 57 == chess_d_slope_obligate[q][0][0] and p[0][1] + 57 == chess_d_slope_obligate[q][0][1]:
-                count += 1
+            if p[0][0] + grid_side == chess_d_slope_obligate[q][0][0] \
+                    and p[0][1] + grid_side == chess_d_slope_obligate[q][0][1]:
+                counter_d_slope += 1
+
+        if counter_d_slope == 4:
+            winning = True
+            saying = "Decreasing Slope"
+
+    counter_i_slope = 0
 
     for p in chess_i_slope_obligate:
 
         for q in range(1, len(chess_i_slope_obligate)):
 
-            if p[0][0] + 57 == chess_i_slope_obligate[q][0][0] and p[0][1] - 57 == chess_d_slope_obligate[q][0][1]:
-                count += 1
+            if p[0][0] + grid_side == chess_i_slope_obligate[q][0][0] \
+                    and p[0][1] - grid_side == chess_i_slope_obligate[q][0][1]:
+                counter_i_slope += 1
 
-    if count == 4 and color == (0, 0, 0) :
-        print("BlACK won the game")
+        if counter_i_slope == 5:
+            winning = True
+            saying = "Increasing Slope"
 
-    elif count == 4 and color == (255, 255, 255) :
-        print("WHITE won the game")
+    if winning and color == (0, 0, 0):
+        print("BlACK won the game", saying)
+
+    if winning and color == (255, 255, 255):
+        print("WHITE won the game", saying)
 
 
-def draw_movements(monitor) :
-    for m in all_chess :
+def draw_movements(monitor):
+    for m in all_chess:
         # m[0] 存的是位置，m[1]存的是颜色
         pygame.draw.circle(monitor, m[1], m[0], 16)
 
 
-def draw_chess(monitor, position, color) :
+def draw_chess(monitor, position, color):
+
     all_chess.append(((int(position[0] * grid_side), int(position[1] * grid_side)), color))
+
     pygame.draw.circle(monitor, color, position, 5)
 
 
@@ -182,33 +206,35 @@ def draw_chess(monitor, position, color) :
 
 event_click = 0
 running = True
-while running :
+
+while running:
+
     clock.tick(FPS)
 
     # 处理事件
 
-    for event in pygame.event.get() :
+    for event in pygame.event.get():
 
         # 监听退出事件
 
-        if event.type == pygame.QUIT :
+        if event.type == pygame.QUIT:
             running = False
 
         # TODO 监听鼠标点击事件
 
-        elif event.type == pygame.MOUSEBUTTONDOWN :
+        elif event.type == pygame.MOUSEBUTTONDOWN:
             event_click += 1
             pos = event.pos
             grid = (int(round(event.pos[0] / (grid_side + .0))),
                     int(round(event.pos[1] / (grid_side + .0))))
 
             # 定义白子
-            if event_click % 2 == 0 :
+            if event_click % 2 == 0:
                 draw_chess(screen, grid, (255, 255, 255))
                 if_win(grid, (255, 255, 255))
 
             # 定义黑子
-            else :
+            else:
                 draw_chess(screen, grid, (0, 0, 0))
                 if_win(grid, (0, 0, 0))
 
@@ -218,5 +244,3 @@ while running :
 
     # 刷新屏幕
     pygame.display.flip()
-
-
