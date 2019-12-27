@@ -2,6 +2,7 @@
 # __copyright__ = "Copyright (C) 2019 Zhuoheng Li"
 # __license__ = "GPL-3.0"
 # __version__ = "1.0"
+# Crafted With Passion
 
 
 import pygame
