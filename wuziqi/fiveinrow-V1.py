@@ -5,6 +5,7 @@
 
 import pygame
 import os
+import sys
 # 初始化 PyGame
 
 pygame.init()
@@ -100,7 +101,7 @@ def if_win(position, color):
     for i in all_chess:
 
         # Vertical
-        if i[0][0] == position[0] * grid_side:
+        if i[0][0] == position[0] * grid_side and i[1] == color:
             chess_vertical.append(i)
             chess_vertical.sort()
             # print(chess_vertical, "chess_horizontal")
@@ -110,9 +111,9 @@ def if_win(position, color):
 
             chess_horizontal.append(i)
             chess_horizontal.sort()
-
+# TODO Need Attention
         for num in range(0, 15):
-            if (i[0][0] + grid_side * num == (position[0] * grid_side)
+            if (i[0][0] - grid_side * num == (position[0] * grid_side)
                     and i[0][1] + grid_side * num == (position[1] * grid_side) and i[1] == color) \
                     or (i[0][0] + grid_side * num == (position[0] * grid_side)
                         and i[0][1] - grid_side * num == (position[1] * grid_side)) and (i[1] == color):
@@ -178,7 +179,7 @@ def if_win(position, color):
                     and p[0][1] - grid_side == chess_i_slope_obligate[q][0][1]:
                 counter_i_slope += 1
 
-        if counter_i_slope == 5:
+        if counter_i_slope == 4:
             winning = True
             saying = "Increasing Slope"
 
@@ -202,6 +203,10 @@ def draw_chess(monitor, position, color):
     pygame.draw.circle(monitor, color, position, 5)
 
 
+def undo():
+    delate_point = all_chess[len(all_chess) - 1]
+    all_chess.remove(delate_point)
+    
 # 主循环
 
 event_click = 0
@@ -237,6 +242,11 @@ while running:
             else:
                 draw_chess(screen, grid, (0, 0, 0))
                 if_win(grid, (0, 0, 0))
+
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            undo()
+            event_click -= 1 
+
 
     # 画出棋盘
     draw_background(screen)
