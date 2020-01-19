@@ -5,7 +5,6 @@
 
 import pygame
 import os
-import sys
 # 初始化 PyGame
 
 pygame.init()
@@ -20,6 +19,7 @@ WIDTH = 912
 LENGTH = 912
 screen = pygame.display.set_mode((WIDTH, LENGTH))
 pygame.display.set_caption("Five In Row")
+pos = (WIDTH / 2, WIDTH / 2)
 
 # 定时刷新屏幕
 
@@ -32,9 +32,18 @@ base_folder = os.path.dirname(__file__)
 img_folder = os.path.join(base_folder, 'images')
 background_img = pygame.image.load(os.path.join(img_folder, 'back.jpg')).convert()
 grid_side = WIDTH / 16
+font_name = pygame.font.get_default_font()
 
 
 # 画出 15*15 棋盘
+
+
+def draw_text(surf, text, size):
+    font = pygame.font.Font(font_name, size)
+    text_surface = font.render(text, True, (243, 173, 173))
+    text_rect = text_surface.get_rect()
+    text_rect.midtop = pos
+    surf.blit(text_surface, text_rect)
 
 
 def draw_background(surface):
@@ -119,7 +128,6 @@ def if_win(position, color):
                         and i[0][1] - grid_side * num == (position[1] * grid_side)) and (i[1] == color):
                 chess_i_slope_obligate.append(i)
                 chess_i_slope_obligate.sort()
-                print(chess_i_slope_obligate)
 
             if (i[0][0] - grid_side * num == (position[0] * grid_side)
                 and i[0][1] - grid_side * num == (position[1] * grid_side)
@@ -127,7 +135,6 @@ def if_win(position, color):
                                            and i[0][1] + 57 * num == (position[1] * grid_side)) and (i[1] == color):
                 chess_d_slope_obligate.append(i)
                 chess_d_slope_obligate.sort()
-                print(chess_d_slope_obligate, "chess_d_slope_obligate")
 
     counter_vertical = 0
 
@@ -184,13 +191,21 @@ def if_win(position, color):
             saying = "Increasing Slope"
 
     if winning and color == (0, 0, 0):
-        print("BlACK won the game", saying)
+        text = "BlACK won the game"
+        print(text, saying)
+        winner = "BLACK"
+        return [winner, True]
 
     if winning and color == (255, 255, 255):
-        print("WHITE won the game", saying)
+        text = "WHITE won the game"
+        print(text, saying)
+        # draw_text(screen, text, 32)
+        winner = "WHITE"
+        return [winner, True]
 
 
 def draw_movements(monitor):
+
     for m in all_chess:
         # m[0] 存的是位置，m[1]存的是颜色
         pygame.draw.circle(monitor, m[1], m[0], 16)
@@ -204,17 +219,29 @@ def draw_chess(monitor, position, color):
 
 
 def undo():
-    delate_point = all_chess[len(all_chess) - 1]
-    all_chess.remove(delate_point)
-    
+    delete_point = all_chess[len(all_chess) - 1]
+    all_chess.remove(delete_point)
+
+
 # 主循环
 
 event_click = 0
 running = True
-
+winning_state = False
+result = []
 while running:
+    clock.tick(60)
 
-    clock.tick(FPS)
+    if winning_state:
+        draw_text(screen, result[0] + " Win Five in row", 32)
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                all_chess.clear()
+                event_click = 0
+                winning_state = False
+            if event.type == pygame.QUIT:
+                running = False
 
     # 处理事件
 
@@ -236,17 +263,23 @@ while running:
             # 定义白子
             if event_click % 2 == 0:
                 draw_chess(screen, grid, (255, 255, 255))
-                if_win(grid, (255, 255, 255))
+                result = if_win(grid, (255, 255, 255))
+                if result is not None and result[1] is True:
+                    print("Hell Yeah")
+                    winning_state = True
 
             # 定义黑子
             else:
                 draw_chess(screen, grid, (0, 0, 0))
-                if_win(grid, (0, 0, 0))
+                result = if_win(grid, (0, 0, 0))
+
+                if result is not None and result[1] is True:
+                    print("Hell Yeah")
+                    winning_state = True
 
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             undo()
-            event_click -= 1 
-
+            event_click -= 1
 
     # 画出棋盘
     draw_background(screen)
