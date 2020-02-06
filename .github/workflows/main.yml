@@ -11,3 +11,5 @@ jobs:
     - uses: actions/checkout@v2
     - name: Deploy to GitHub Pages - Python
       uses: JacksonMaxfield/github-pages-deploy-action-python@2.1.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
