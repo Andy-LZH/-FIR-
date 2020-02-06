@@ -1,6 +1,9 @@
-name: Python application
+name: Build and deploy 
 
-on: [push]
+on: 
+  push:
+    branches: 
+      - master
 
 jobs:
   build:
